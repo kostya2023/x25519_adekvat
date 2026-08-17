@@ -1,0 +1,42 @@
+[package]
+name = "x25519_adekvat"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+
+description = "A small, constant-time, no_std-friendly X25519 implementation in Rust"
+license = "MIT"
+readme = "README.md"
+
+repository = "https://github.com/kostya2023/x25519_adekvat"
+homepage = "https://github.com/kostya2023/x25519_adekvat"
+
+keywords = [
+    "x25519",
+    "curve25519",
+    "cryptography",
+    "diffie-hellman",
+    "no-std",
+]
+
+categories = [
+    "cryptography",
+    "no-std",
+]
+
+[dependencies]
+crypto-bigint = "0.7"
+thiserror = { version = "2.0", default-features = false }
+rand = { version = "0.10", default-features = false, optional = true }
+zeroize = { version = "1.9", default-features = false, optional = true }
+
+[features]
+default = ["random", "zeroize"]
+
+random = ["dep:rand"]
+zeroize = ["dep:zeroize"]
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
