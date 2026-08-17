@@ -1,7 +1,6 @@
 # x25519_adekvat
 
-A small, constant-time and `no_std`-friendly implementation of **X25519** in Rust.
-
+A small, constant-time and fully `no-std` implementation of **X25519** in Rust.
 Designed to provide a simple API for public-key generation and Diffie–Hellman shared-secret derivation.
 
 ## Features
