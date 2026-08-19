@@ -19,14 +19,14 @@ Diffie–Hellman shared-secret derivation.
 
 ## Installation
 
-```toml
+```text
 [dependencies]
 x25519_adekvat = "1.0.0-beta.1"
 ````
 
 ## Quick Start
 
-```rust
+```text
 use x25519_adekvat::PrivateKey;
 
 let alice = PrivateKey::new([0x11; 32]);
@@ -47,7 +47,7 @@ Both parties now have the same 32-byte shared secret.
 
 With the `random` feature:
 
-```rust
+```text
 use x25519_adekvat::PrivateKey;
 
 let mut rng = rand::rngs::SysRng::new();
@@ -61,7 +61,7 @@ The RNG is provided by the caller.
 
 Enable the `zeroize` feature to clear private-key material:
 
-```rust
+```text
 use zeroize::Zeroize;
 
 let mut key = PrivateKey::new([0xFF; 32]);
@@ -73,7 +73,7 @@ key.zeroize();
 
 ### `PrivateKey`
 
-```rust
+```text
 PrivateKey::new([u8; 32]) -> PrivateKey
 PrivateKey::to_bytes() -> [u8; 32]
 PrivateKey::public_key() -> PublicKey
@@ -82,13 +82,13 @@ PrivateKey::derive_shared_secret(&PublicKey) -> [u8; 32]
 
 With the `random` feature:
 
-```rust
+```text
 PrivateKey::new_with_random(...)
 ```
 
 ### `PublicKey`
 
-```rust
+```text
 PublicKey::new([u8; 32]) -> PublicKey
 PublicKey::to_bytes() -> [u8; 32]
 ```
