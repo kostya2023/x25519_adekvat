@@ -1,12 +1,15 @@
 # x25519_adekvat
 
-A small, constant-time and fully `no-std` implementation of **X25519** in Rust.
-Designed to provide a simple API for public-key generation and Diffie–Hellman shared-secret derivation.
+A small, constant-time-oriented and fully `no_std` implementation of
+**X25519** in Rust.
+
+Designed to provide a simple API for public-key generation and
+Diffie–Hellman shared-secret derivation.
 
 ## Features
 
 * 🔐 X25519 / RFC 7748
-* ⚡ Constant-time implementation
+* ⚡ Constant-time-oriented implementation
 * 🦀 Pure Rust
 * `no_std` support
 * 🎲 Optional random private-key generation
@@ -18,8 +21,8 @@ Designed to provide a simple API for public-key generation and Diffie–Hellman 
 
 ```toml
 [dependencies]
-x25519_adekvat = "0.1"
-```
+x25519_adekvat = "1.0.0-beta.1"
+````
 
 ## Quick Start
 
@@ -90,19 +93,106 @@ PublicKey::new([u8; 32]) -> PublicKey
 PublicKey::to_bytes() -> [u8; 32]
 ```
 
+## Benches
+
+Yeah, `x25519_adekvat` is slower. A lot slower. :D
+
+| Operation     | x25519_adekvat | x25519-dalek |
+| ------------- | -------------: | -----------: |
+| Public key    |        ~355 µs |       ~25 µs |
+| Shared secret |        ~355 µs |       ~41 µs |
+
+So why is it slower?
+
+`x25519_adekvat` currently uses a straightforward Montgomery ladder
+implementation in pure Rust without precomputed tables or
+architecture-specific assembly.
+
+The goal is not to win the benchmark. The goal is to keep the
+implementation simple, portable, and constant-time-oriented by design.
+
+> "Yeah, we're slower. At least we know exactly what we're doing." :D
+
+The implementation is additionally tested with `dudect` for timing
+leakage and manually inspected at the generated assembly level.
+
+**Note:** These benchmarks are not a security comparison between the
+two libraries. They only compare performance under the tested
+configuration.
+
+## Constant-Time Analysis
+
+`x25519_adekvat` is designed to avoid secret-dependent control flow,
+memory accesses, and table lookups.
+
+The implementation is tested using
+[`dudect`](https://github.com/oreparaz/dudect)
+and the generated optimized assembly is manually inspected.
+
+### Dudect
+
+Latest test results:
+
+| Operation       | Samples |      max t |    max tau | Result                |
+| --------------- | ------: | ---------: | ---------: | --------------------- |
+| `public_key`    |    ~72K | `-2.01710` | `-0.00749` | ✅ No leakage detected |
+| `shared_secret` |    ~98K | `+2.72872` | `+0.00872` | ✅ No leakage detected |
+
+Both tests produced an absolute `t` statistic below the commonly used
+`|t| = 5` threshold.
+
+```text
+public_key
+    n == +0.072M
+    max t = -2.01710
+    max tau = -0.00749
+
+shared_secret
+    n == +0.098M
+    max t = +2.72872
+    max tau = +0.00872
+```
+
+These results mean that `dudect` did not detect a statistically
+significant timing difference between the tested secret-input
+distributions.
+
+### Assembly Analysis
+
+The optimized assembly was manually inspected for:
+
+* ❌ Secret-dependent conditional branches
+* ❌ Secret-dependent memory accesses
+* ❌ Secret-indexed lookup tables
+* ❌ Variable-iteration loops
+* ✅ Branchless conditional operations (`CMOV` / bitwise masking)
+* ✅ Fixed 255-iteration Montgomery ladder
+
+The X25519 implementation does not use precomputed tables for the
+Montgomery ladder.
+
+> **Note:** Neither `dudect` nor manual assembly inspection constitutes
+> a formal proof of constant-time execution. These results apply to the
+> tested build, compiler, target, and hardware.
+
 ## Security
 
 X25519 provides **key agreement**, not authentication.
 
-A real protocol should authenticate public keys and derive encryption keys from the shared secret using a suitable KDF such as HKDF.
+A real protocol should authenticate public keys and derive encryption
+keys from the shared secret using a suitable KDF such as HKDF.
 
-Private keys should never be logged, transmitted, or exposed unnecessarily.
+Private keys should never be logged, transmitted, or exposed
+unnecessarily.
 
-The core implementation uses constant-time arithmetic and conditional operations for secret-dependent computations.
+The core implementation is designed around constant-time arithmetic
+and branchless conditional operations for secret-dependent
+computations.
 
 ## Testing
 
-The implementation is tested against RFC 7748 vectors, including the 1000-iteration test.
+The implementation is tested against RFC 7748 vectors, including the
+1000-iteration test.
 
 Run the full test suite:
 
@@ -110,9 +200,23 @@ Run the full test suite:
 cargo test
 ```
 
+Run benchmarks:
+
+```bash
+cargo bench
+```
+
+Run the constant-time analysis:
+
+```bash
+cargo run --release --example constant_time
+```
+
 ## MSRV
+
 Rust 1.85+
 
 ## License
 
 Licensed under the MIT License.
+

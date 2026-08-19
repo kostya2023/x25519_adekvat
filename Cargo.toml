@@ -1,6 +1,6 @@
 [package]
 name = "x25519_adekvat"
-version = "0.1.0"
+version = "1.0.0-beta.1"
 edition = "2024"
 rust-version = "1.85"
 
@@ -24,16 +24,25 @@ categories = [
     "no-std",
 ]
 
+[dev-dependencies]
+criterion = "0.8"
+dudect-bencher = "0.7"
+x25519-dalek = { version = "3", default-features = false, features = ["static_secrets"] }
+
+[[bench]]
+name = "x25519"
+harness = false
+
 [dependencies]
 crypto-bigint = "0.7"
 thiserror = { version = "2.0", default-features = false }
-rand = { version = "0.10", default-features = false, optional = true }
+rand_core = { version = "0.10", default-features = false, optional = true }
 zeroize = { version = "1.9", default-features = false, optional = true }
 
 [features]
 default = ["random", "zeroize"]
 
-random = ["dep:rand"]
+random = ["dep:rand_core"]
 zeroize = ["dep:zeroize"]
 
 [profile.release]

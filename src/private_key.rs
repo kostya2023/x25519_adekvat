@@ -3,7 +3,7 @@ use crate::math::constants::BASEPOINT;
 use crate::math::x25519::x25519;
 
 #[cfg(feature = "random")]
-use rand::TryRng;
+use rand_core::TryRng;
 
 #[cfg(feature = "random")]
 use crate::X25519Error;
